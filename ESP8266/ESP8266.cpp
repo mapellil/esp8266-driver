@@ -17,6 +17,7 @@
 #include "ESP8266.h"
 
 #define   ESP8266_DEFAULT_BAUD_RATE   115200
+#define   ESP8266_CUSTOM_BAUD_RATE    4608000 // TODO move this into config
 
 ESP8266::ESP8266(PinName tx, PinName rx, bool debug)
     : _serial(tx, rx, ESP8266_DEFAULT_BAUD_RATE), 
@@ -53,10 +54,21 @@ bool ESP8266::startup(int mode)
         && _parser.recv("OK")
         && _parser.send("AT+CIPMUX=1")
         && _parser.recv("OK");
+    if (!success) {
+        return false;
+    }
 
     _parser.oob("+IPD", callback(this, &ESP8266::_packet_handler));
-    	
-    return success;
+    
+    success = _parser.send("AT+UART_CUR=%d,8,1,0,0", ESP8266_CUSTOM_BAUD_RATE);
+    if (!success) {
+        return false;
+    }
+    
+    _serial.set_baud(ESP8266_CUSTOM_BAUD_RATE);
+    wait_ms(500);
+    
+    return true;
 }
 
 bool ESP8266::reset(void)
