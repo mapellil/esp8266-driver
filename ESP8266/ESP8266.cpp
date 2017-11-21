@@ -275,9 +275,9 @@ int32_t ESP8266::recv(int id, void *data, uint32_t amount)
         }
 
         // Check for inbound packets
-        if (!_parser.process_oob()) {
-            return -1;
-        }
+//        if (!_parser.process_oob()) {
+//            return -1;
+//        }
     }
 }
 
